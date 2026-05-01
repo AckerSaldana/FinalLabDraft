@@ -1,0 +1,59 @@
+{
+  "name": "flock_big",
+  "description": "200 boids in a large arena — switch Spatial mode (None/Grid/Octree) to compare build/query times.",
+  "gravity_on": false,
+  "materials": [
+    { "name": "rubber", "density": 1100.0 },
+    { "name": "steel",  "density": 7850.0 }
+  ],
+  "interactions": [
+    { "material_a": "rubber", "material_b": "rubber", "restitution": 0.6, "static_friction": 0.3, "dynamic_friction": 0.2 },
+    { "material_a": "rubber", "material_b": "steel",  "restitution": 0.5, "static_friction": 0.3, "dynamic_friction": 0.2 }
+  ],
+  "cameras": [
+    {
+      "name": "wide",
+      "transform": {
+        "position":    { "x":  0.0, "y": 22.0, "z": 50.0 },
+        "orientation": { "yaw":  0.0, "pitch": -22.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 65.0, "near": 0.1, "far": 400.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "arena",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 28, "y": 28, "z": 28 }
+      },
+      "material": "steel",
+      "shape_type": "Sphere",
+      "shape": { "radius": 1.0 },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "CONTAINER"
+    }
+  ],
+  "spawners_type": ["BoidSpawner"],
+  "spawners": [
+    {
+      "base": {
+        "name": "big_flock",
+        "start_time": 0.0,
+        "spawn_type_type": "SingleBurstSpawn",
+        "spawn_type": { "count": 200 },
+        "location_type": "RandomBox",
+        "location": { "min": { "x": -18, "y": -18, "z": -18 }, "max": { "x": 18, "y": 18, "z": 18 } },
+        "linear_velocity":  { "min": { "x": -3, "y": -3, "z": -3 }, "max": { "x": 3, "y": 3, "z": 3 } },
+        "angular_velocity": { "min": { "x":  0, "y":  0, "z":  0 }, "max": { "x": 0, "y": 0, "z": 0 } },
+        "material": "rubber",
+        "owner": "SEQUENTIAL"
+      },
+      "radius_range": { "min": 0.20, "max": 0.30 }
+    }
+  ]
+}

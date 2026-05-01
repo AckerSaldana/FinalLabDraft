@@ -1,0 +1,40 @@
+# Build artefacts
+/build/
+/out/
+/x64/
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.lib
+*.exp
+*.dll
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.sln.docstates
+CMakeSettings.json
+
+# vcpkg
+vcpkg_installed/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+Makefile
+
+# Editor
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Tooling
+.claude/

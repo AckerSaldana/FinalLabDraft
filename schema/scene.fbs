@@ -1,0 +1,200 @@
+// Reconstructed from the final-lab specification. If the official Scene.fbs is
+// later provided, replace this file verbatim - the loader must still honour
+// every default below so any scene parses cleanly.
+
+namespace finalLab.fbs;
+
+enum CollisionType : byte { SOLID, CONTAINER }
+enum ObjectOwnerType : byte { ONE, TWO, THREE, FOUR }
+enum SpawnerOwnerType : byte { ONE, TWO, THREE, FOUR, SEQUENTIAL }
+enum EasingType : byte { LINEAR, SMOOTHSTEP }
+enum PathMode : byte { STOP, LOOP, REVERSE }
+
+struct Vec3 {
+  x: float;
+  y: float;
+  z: float;
+}
+
+struct RotationEuler {
+  yaw: float;
+  pitch: float;
+  roll: float;
+}
+
+struct Transform {
+  position: Vec3;
+  orientation: RotationEuler;
+  scale: Vec3;
+}
+
+struct PhysicsState {
+  linear_velocity: Vec3;
+  angular_velocity: Vec3;
+}
+
+struct FloatRange {
+  min: float;
+  max: float;
+}
+
+struct Vec3Range {
+  min: Vec3;
+  max: Vec3;
+}
+
+table Sphere { radius: float; }
+// Spec table was named "Cube" but the union references "Cuboid"; renamed here.
+table Cuboid { size: Vec3; }
+table Cylinder { radius: float; height: float; }
+table Capsule { radius: float; height: float; }
+table Plane { normal: Vec3; }
+
+union Shape { Sphere, Cuboid, Cylinder, Capsule, Plane }
+
+table StaticObject {}
+
+table SimulatedObject {
+  initial_state: PhysicsState;
+  owner: ObjectOwnerType;
+}
+
+table Waypoint {
+  position: Vec3;
+  rotation: RotationEuler;
+  time: float;
+}
+
+table AnimatedObject {
+  waypoints: [Waypoint];
+  total_duration: float;
+  easing: EasingType = LINEAR;
+  path_mode: PathMode = STOP;
+}
+
+// BoidObject is a Phase 7 schema extension — boids are sphere-shaped Simulated
+// bodies that additionally receive Reynolds steering each step.
+table BoidObject {
+  initial_state: PhysicsState;
+  owner: ObjectOwnerType;
+}
+
+union Behaviour { StaticObject, AnimatedObject, SimulatedObject, BoidObject }
+
+table Material {
+  name: string;
+  density: float;
+}
+
+table MaterialInteraction {
+  material_a: string;
+  material_b: string;
+  restitution: float;
+  static_friction: float;
+  dynamic_friction: float;
+}
+
+table PerspectiveCamera {
+  fov: float;
+  near: float;
+  far: float;
+}
+
+table OrthographicCamera {
+  size: float;
+  near: float;
+  far: float;
+}
+
+union CameraType { PerspectiveCamera, OrthographicCamera }
+
+table Camera {
+  name: string;
+  transform: Transform;
+  camera_type: CameraType;
+}
+
+table RepeatingSpawn {
+  interval: float;
+  max_count: uint;
+}
+
+table SingleBurstSpawn {
+  count: uint;
+}
+
+union SpawnType { SingleBurstSpawn, RepeatingSpawn }
+
+table FixedLocation { transform: Transform; }
+table RandomBox { min: Vec3; max: Vec3; }
+table RandomSphere { center: Vec3; radius: float; }
+
+union SpawnLocation { FixedLocation, RandomBox, RandomSphere }
+
+table BaseSpawner {
+  name: string;
+  start_time: float = 0;
+  spawn_type: SpawnType;
+  location: SpawnLocation;
+  linear_velocity: Vec3Range;
+  angular_velocity: Vec3Range;
+  material: string;
+  owner: SpawnerOwnerType;
+}
+
+table SphereSpawner {
+  base: BaseSpawner;
+  radius_range: FloatRange;
+}
+
+table CylinderSpawner {
+  base: BaseSpawner;
+  radius_range: FloatRange;
+  height_range: FloatRange;
+}
+
+table CapsuleSpawner {
+  base: BaseSpawner;
+  radius_range: FloatRange;
+  height_range: FloatRange;
+}
+
+table CuboidSpawner {
+  base: BaseSpawner;
+  size_range: Vec3Range;
+}
+
+// BoidSpawner is a Phase 7 schema extension — same shape ranges as SphereSpawner
+// but each spawned object's Behaviour is BoidObject (steering applied each step).
+table BoidSpawner {
+  base: BaseSpawner;
+  radius_range: FloatRange;
+}
+
+union SpawnerType { SphereSpawner, CylinderSpawner, CapsuleSpawner, CuboidSpawner, BoidSpawner }
+
+table Object {
+  name: string;
+  transform: Transform;
+  material: string;
+  shape: Shape;
+  behaviour: Behaviour;
+  collision_type: CollisionType = SOLID;
+}
+
+// Spec defines Material (with density) but omits it from Scene; adding here so
+// per-scene densities reach the loader for mass = density * volume.
+table Scene {
+  name: string;
+  description: string;
+  gravity_on: bool = true;
+  cameras: [Camera];
+  objects: [Object];
+  spawners: [SpawnerType];
+  interactions: [MaterialInteraction];
+  materials: [Material];
+}
+
+root_type Scene;
+file_identifier "SCNE";
+file_extension "scene";

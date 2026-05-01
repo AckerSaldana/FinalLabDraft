@@ -1,0 +1,14 @@
+{
+  "name": "finallab",
+  "version": "0.1.0",
+  "description": "Networked physics simulation - Simulation & Concurrency final lab",
+  "dependencies": [
+    "glfw3",
+    "glm",
+    "flatbuffers",
+    {
+      "name": "imgui",
+      "features": ["vulkan-binding", "glfw-binding", "docking-experimental"]
+    }
+  ]
+}

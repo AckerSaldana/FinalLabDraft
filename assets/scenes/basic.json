@@ -1,0 +1,180 @@
+{
+  "name": "basic_demo",
+  "description": "Primitives showcase: one of each shape per user, a container, and a floor.",
+  "gravity_on": true,
+  "materials": [
+    { "name": "wood",    "density":  600.0 },
+    { "name": "steel",   "density": 7850.0 },
+    { "name": "rubber",  "density": 1100.0 },
+    { "name": "plastic", "density": 1200.0 }
+  ],
+  "interactions": [
+    { "material_a": "wood",   "material_b": "wood",   "restitution": 0.3, "static_friction": 0.5, "dynamic_friction": 0.4 },
+    { "material_a": "steel",  "material_b": "wood",   "restitution": 0.5, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "rubber", "material_b": "wood",   "restitution": 0.85, "static_friction": 0.7, "dynamic_friction": 0.6 },
+    { "material_a": "steel",  "material_b": "steel",  "restitution": 0.6, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "plastic","material_b": "wood",   "restitution": 0.4, "static_friction": 0.5, "dynamic_friction": 0.35 }
+  ],
+  "cameras": [
+    {
+      "name": "overhead",
+      "transform": {
+        "position":    { "x":  0.0, "y": 10.0, "z": 16.0 },
+        "orientation": { "yaw":  0.0, "pitch": -25.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    },
+    {
+      "name": "side",
+      "transform": {
+        "position":    { "x": 18.0, "y":  3.0, "z":  0.0 },
+        "orientation": { "yaw": 90.0, "pitch": -5.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 55.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "floor",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 30, "y": 1, "z": 30 }
+      },
+      "material": "wood",
+      "shape_type": "Plane",
+      "shape": { "normal": { "x": 0, "y": 1, "z": 0 } },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "SOLID"
+    },
+
+    {
+      "name": "container_bowl",
+      "transform": {
+        "position": { "x": 0, "y": 3, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 5, "y": 6, "z": 5 }
+      },
+      "material": "steel",
+      "shape_type": "Cylinder",
+      "shape": { "radius": 1.0, "height": 1.0 },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "CONTAINER"
+    },
+
+    {
+      "name": "ball_one",
+      "transform": {
+        "position": { "x": -1.5, "y": 6, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      },
+      "material": "rubber",
+      "shape_type": "Sphere",
+      "shape": { "radius": 0.4 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": {
+        "initial_state": {
+          "linear_velocity":  { "x": 1.0, "y": 0.0, "z": 0.0 },
+          "angular_velocity": { "x": 0.0, "y": 90.0, "z": 0.0 }
+        },
+        "owner": "ONE"
+      },
+      "collision_type": "SOLID"
+    },
+
+    {
+      "name": "box_two",
+      "transform": {
+        "position": { "x": 0.5, "y": 7, "z": 0 },
+        "orientation": { "yaw": 20, "pitch": 10, "roll": 0 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      },
+      "material": "wood",
+      "shape_type": "Cuboid",
+      "shape": { "size": { "x": 0.6, "y": 0.6, "z": 0.6 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": {
+        "initial_state": {
+          "linear_velocity":  { "x": 0.0, "y": 0.0, "z": 0.0 },
+          "angular_velocity": { "x": 0.0, "y":  0.0, "z": 0.0 }
+        },
+        "owner": "TWO"
+      },
+      "collision_type": "SOLID"
+    },
+
+    {
+      "name": "cyl_three",
+      "transform": {
+        "position": { "x": 1.5, "y": 8, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      },
+      "material": "plastic",
+      "shape_type": "Cylinder",
+      "shape": { "radius": 0.3, "height": 0.8 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": {
+        "initial_state": {
+          "linear_velocity":  { "x": -0.5, "y":  0.0, "z": 0.3 },
+          "angular_velocity": { "x":  0.0, "y":  0.0, "z": 45.0 }
+        },
+        "owner": "THREE"
+      },
+      "collision_type": "SOLID"
+    },
+
+    {
+      "name": "cap_four",
+      "transform": {
+        "position": { "x": -0.5, "y": 9, "z": 1 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 30 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      },
+      "material": "rubber",
+      "shape_type": "Capsule",
+      "shape": { "radius": 0.3, "height": 0.6 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": {
+        "initial_state": {
+          "linear_velocity":  { "x":  0.3, "y": 0.0, "z": -0.5 },
+          "angular_velocity": { "x":  0.0, "y": 0.0, "z":  0.0 }
+        },
+        "owner": "FOUR"
+      },
+      "collision_type": "SOLID"
+    },
+
+    {
+      "name": "animated_paddle",
+      "transform": {
+        "position": { "x": 8, "y": 1, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 2.5, "y": 0.4, "z": 2.5 }
+      },
+      "material": "steel",
+      "shape_type": "Cuboid",
+      "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "AnimatedObject",
+      "behaviour": {
+        "waypoints": [
+          { "position": { "x":  8, "y": 1, "z":  0 }, "rotation": { "yaw": 0, "pitch": 0, "roll":   0 }, "time": 0.0 },
+          { "position": { "x":  8, "y": 3, "z":  0 }, "rotation": { "yaw": 0, "pitch": 0, "roll":  15 }, "time": 2.0 },
+          { "position": { "x":  8, "y": 1, "z":  0 }, "rotation": { "yaw": 0, "pitch": 0, "roll":   0 }, "time": 4.0 }
+        ],
+        "total_duration": 4.0,
+        "easing": "SMOOTHSTEP",
+        "path_mode": "LOOP"
+      },
+      "collision_type": "SOLID"
+    }
+  ],
+  "spawners": []
+}

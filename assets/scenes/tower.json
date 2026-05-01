@@ -1,0 +1,78 @@
+{
+  "name": "tower",
+  "description": "Stack of mixed-material cuboids — useful for showing material vs owner colour modes side-by-side.",
+  "gravity_on": true,
+  "materials": [
+    { "name": "wood",   "density":  600.0 },
+    { "name": "steel",  "density": 7850.0 },
+    { "name": "rubber", "density": 1100.0 }
+  ],
+  "interactions": [
+    { "material_a": "wood",  "material_b": "wood",  "restitution": 0.3, "static_friction": 0.5, "dynamic_friction": 0.4 },
+    { "material_a": "steel", "material_b": "steel", "restitution": 0.6, "static_friction": 0.4, "dynamic_friction": 0.3 }
+  ],
+  "cameras": [
+    {
+      "name": "front",
+      "transform": {
+        "position":    { "x":  0.0, "y": 4.0, "z": 12.0 },
+        "orientation": { "yaw":  0.0, "pitch": -10.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 55.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "floor",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 24, "y": 1, "z": 24 }
+      },
+      "material": "wood",
+      "shape_type": "Plane",
+      "shape": { "normal": { "x": 0, "y": 1, "z": 0 } },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "SOLID"
+    },
+    {
+      "name": "cube_1",
+      "transform": { "position": { "x": 0, "y": 0.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "steel", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "ONE" }
+    },
+    {
+      "name": "cube_2",
+      "transform": { "position": { "x": 0, "y": 1.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "wood", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "TWO" }
+    },
+    {
+      "name": "cube_3",
+      "transform": { "position": { "x": 0, "y": 2.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "rubber", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "THREE" }
+    },
+    {
+      "name": "cube_4",
+      "transform": { "position": { "x": 0, "y": 3.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "steel", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "FOUR" }
+    },
+    {
+      "name": "cube_5",
+      "transform": { "position": { "x": 0, "y": 4.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "wood", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "ONE" }
+    }
+  ],
+  "spawners": []
+}

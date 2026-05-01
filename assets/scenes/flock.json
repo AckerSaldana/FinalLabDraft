@@ -1,0 +1,73 @@
+{
+  "name": "flock_demo",
+  "description": "Reynolds boids inside a steel sphere container with a cylinder obstacle. Toggle Flocking → Enabled and adjust weights live.",
+  "gravity_on": false,
+  "materials": [
+    { "name": "rubber", "density": 1100.0 },
+    { "name": "steel",  "density": 7850.0 }
+  ],
+  "interactions": [
+    { "material_a": "rubber", "material_b": "rubber", "restitution": 0.6, "static_friction": 0.3, "dynamic_friction": 0.2 },
+    { "material_a": "rubber", "material_b": "steel",  "restitution": 0.5, "static_friction": 0.3, "dynamic_friction": 0.2 }
+  ],
+  "cameras": [
+    {
+      "name": "overhead",
+      "transform": {
+        "position":    { "x":  0.0, "y": 14.0, "z": 28.0 },
+        "orientation": { "yaw":  0.0, "pitch": -22.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "arena",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 14, "y": 14, "z": 14 }
+      },
+      "material": "steel",
+      "shape_type": "Sphere",
+      "shape": { "radius": 1.0 },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "CONTAINER"
+    },
+    {
+      "name": "obstacle",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 1, "y": 6, "z": 1 }
+      },
+      "material": "steel",
+      "shape_type": "Cylinder",
+      "shape": { "radius": 1.5, "height": 1.0 },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "SOLID"
+    }
+  ],
+  "spawners_type": ["BoidSpawner"],
+  "spawners": [
+    {
+      "base": {
+        "name": "flock_seq",
+        "start_time": 0.0,
+        "spawn_type_type": "SingleBurstSpawn",
+        "spawn_type": { "count": 28 },
+        "location_type": "RandomBox",
+        "location": { "min": { "x": -8, "y": -2, "z": -8 }, "max": { "x": 8, "y": 6, "z": 8 } },
+        "linear_velocity":  { "min": { "x": -2, "y": -1, "z": -2 }, "max": { "x": 2, "y": 1, "z": 2 } },
+        "angular_velocity": { "min": { "x":  0, "y":  0, "z":  0 }, "max": { "x": 0, "y": 0, "z": 0 } },
+        "material": "rubber",
+        "owner": "SEQUENTIAL"
+      },
+      "radius_range": { "min": 0.20, "max": 0.30 }
+    }
+  ]
+}

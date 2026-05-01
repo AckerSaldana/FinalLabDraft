@@ -1,0 +1,77 @@
+{
+  "name": "spawn_demo",
+  "description": "Two spawners: an initial 12-sphere burst (player 1, red), and a sequential RandomBox repeating spawner that round-robins owners.",
+  "gravity_on": true,
+  "materials": [
+    { "name": "wood",   "density":  600.0 },
+    { "name": "rubber", "density": 1100.0 },
+    { "name": "steel",  "density": 7850.0 }
+  ],
+  "interactions": [
+    { "material_a": "rubber", "material_b": "wood",   "restitution": 0.85, "static_friction": 0.7,  "dynamic_friction": 0.6 },
+    { "material_a": "rubber", "material_b": "rubber", "restitution": 0.9,  "static_friction": 0.7,  "dynamic_friction": 0.6 },
+    { "material_a": "steel",  "material_b": "wood",   "restitution": 0.5,  "static_friction": 0.4,  "dynamic_friction": 0.3 },
+    { "material_a": "wood",   "material_b": "wood",   "restitution": 0.3,  "static_friction": 0.5,  "dynamic_friction": 0.4 }
+  ],
+  "cameras": [
+    {
+      "name": "wide",
+      "transform": {
+        "position":    { "x":  0.0, "y": 12.0, "z": 22.0 },
+        "orientation": { "yaw":  0.0, "pitch": -25.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "floor",
+      "transform": {
+        "position": { "x": 0, "y": 0, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale": { "x": 40, "y": 1, "z": 40 }
+      },
+      "material": "wood",
+      "shape_type": "Plane",
+      "shape": { "normal": { "x": 0, "y": 1, "z": 0 } },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "SOLID"
+    }
+  ],
+  "spawners_type": ["SphereSpawner", "SphereSpawner"],
+  "spawners": [
+    {
+      "base": {
+        "name": "burst_red",
+        "start_time": 0.0,
+        "spawn_type_type": "SingleBurstSpawn",
+        "spawn_type": { "count": 12 },
+        "location_type": "RandomSphere",
+        "location": { "center": { "x": -5.0, "y": 12.0, "z": 0.0 }, "radius": 1.5 },
+        "linear_velocity":  { "min": { "x": -1, "y": -2, "z": -1 }, "max": { "x": 1, "y": 0, "z": 1 } },
+        "angular_velocity": { "min": { "x":  0, "y":  0, "z":  0 }, "max": { "x": 0, "y": 0, "z": 0 } },
+        "material": "rubber",
+        "owner": "ONE"
+      },
+      "radius_range": { "min": 0.30, "max": 0.45 }
+    },
+    {
+      "base": {
+        "name": "fountain_seq",
+        "start_time": 1.0,
+        "spawn_type_type": "RepeatingSpawn",
+        "spawn_type": { "interval": 0.35, "max_count": 80 },
+        "location_type": "RandomBox",
+        "location": { "min": { "x": 3.0, "y": 11.0, "z": -2.0 }, "max": { "x": 7.0, "y": 12.0, "z": 2.0 } },
+        "linear_velocity":  { "min": { "x": -1.5, "y": -1.0, "z": -1.5 }, "max": { "x": 1.5, "y": 0.0, "z": 1.5 } },
+        "angular_velocity": { "min": { "x":   0,  "y":   0,  "z":   0  }, "max": { "x":  0,  "y":  0,  "z":  0  } },
+        "material": "rubber",
+        "owner": "SEQUENTIAL"
+      },
+      "radius_range": { "min": 0.25, "max": 0.40 }
+    }
+  ]
+}

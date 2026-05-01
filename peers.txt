@@ -1,0 +1,10 @@
+# Peer endpoints, one per line, format: <ip>:<port>
+# Line N defines peer N (1-indexed). Same file goes on every PC.
+# Launch each PC with: finalLab.exe --peer <N>
+#
+# Default below is loopback for single-machine multi-process testing.
+# For RBB-335 demos, replace with the lab PCs' addresses, e.g.:
+#   192.168.1.50:50001
+#   192.168.1.51:50002
+127.0.0.1:50001
+127.0.0.1:50002
