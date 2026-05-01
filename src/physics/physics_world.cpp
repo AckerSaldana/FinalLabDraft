@@ -69,8 +69,15 @@ void PhysicsWorld::clear() {
     initial_.clear();
     interactions_.clear();
     animated_.clear();
+    canonical_to_local_.clear();
     total_time_ = 0.0f;
     last_contact_count_ = 0;
+}
+
+int PhysicsWorld::find_local_index(uint32_t canonical_body_id) const {
+    auto it = canonical_to_local_.find(canonical_body_id);
+    if (it == canonical_to_local_.end()) return -1;
+    return static_cast<int>(it->second);
 }
 
 void PhysicsWorld::build_from_scene(const scene::Scene& scene) {
@@ -88,6 +95,7 @@ void PhysicsWorld::build_from_scene(const scene::Scene& scene) {
         b.material             = o.material;
         b.collision_type       = o.collision_type;
         b.scene_object_index   = static_cast<int>(i);
+        b.canonical_body_id    = static_cast<uint32_t>(i);   // pre-loaded → use scene index
 
         if (o.behaviour.kind == scene::BehaviourKind::Simulated) {
             b.linear_velocity      = o.behaviour.sim.initial_linear_velocity;
@@ -107,6 +115,7 @@ void PhysicsWorld::build_from_scene(const scene::Scene& scene) {
             b.inverse_inertia_body = glm::vec3(0.0f);
             b.owner_peer_id        = 0;
         }
+        canonical_to_local_[b.canonical_body_id] = static_cast<uint32_t>(bodies_.size());
         bodies_.push_back(b);
 
         if (o.behaviour.kind == scene::BehaviourKind::Animated) {
@@ -127,11 +136,15 @@ void PhysicsWorld::build_from_scene(const scene::Scene& scene) {
 
 void PhysicsWorld::reset_to_initial() {
     bodies_ = initial_;
+    canonical_to_local_.clear();
+    for (size_t i = 0; i < bodies_.size(); ++i) {
+        canonical_to_local_[bodies_[i].canonical_body_id] = static_cast<uint32_t>(i);
+    }
     total_time_ = 0.0f;
     last_contact_count_ = 0;
 }
 
-void PhysicsWorld::add_body_from_object(const scene::Object& o, int scene_object_index) {
+void PhysicsWorld::add_body_from_object(const scene::Object& o, int scene_object_index, uint32_t canonical_body_id) {
     RigidBody b;
     b.position             = o.transform.position;
     b.orientation          = o.transform.orientation;
@@ -140,6 +153,7 @@ void PhysicsWorld::add_body_from_object(const scene::Object& o, int scene_object
     b.material             = o.material;
     b.collision_type       = o.collision_type;
     b.scene_object_index   = scene_object_index;
+    b.canonical_body_id    = canonical_body_id;
 
     if (o.behaviour.kind == scene::BehaviourKind::Simulated) {
         b.linear_velocity      = o.behaviour.sim.initial_linear_velocity;
@@ -155,6 +169,7 @@ void PhysicsWorld::add_body_from_object(const scene::Object& o, int scene_object
         b.owner_peer_id        = static_cast<uint8_t>(static_cast<int>(o.behaviour.boid.owner) + 1);
         b.is_boid              = true;
     }
+    canonical_to_local_[canonical_body_id] = static_cast<uint32_t>(bodies_.size());
     bodies_.push_back(b);
 }
 
@@ -193,12 +208,21 @@ void PhysicsWorld::step(float dt) {
         }
     }
 
+    // Light velocity damping so bodies eventually come to rest. Without this,
+    // any spinning body keeps re-contacting walls every frame and creates a
+    // pseudo-static state where impulse + friction "float" the body. Linear
+    // damping is much smaller — gravity should still dominate falls.
+    const float linear_damp_factor  = std::exp(-0.05f * dt);
+    const float angular_damp_factor = std::exp(-0.5f  * dt);
+
     for (auto& b : bodies_) {
         if (b.inverse_mass <= 0.0f) continue;
         bool mine = (my_peer_id == 0) || (b.owner_peer_id == 0) || (b.owner_peer_id == my_peer_id);
 
         if (mine) {
             if (gravity_on) b.linear_velocity += gravity * dt;
+            b.linear_velocity      *= linear_damp_factor;
+            b.angular_velocity_rad *= angular_damp_factor;
             b.position += b.linear_velocity * dt;
             const glm::vec3& w = b.angular_velocity_rad;
             glm::quat omega_q(0.0f, w.x, w.y, w.z);
@@ -245,12 +269,21 @@ void PhysicsWorld::step(float dt) {
     detect_contacts(bodies_, contacts_scratch_);
     last_contact_count_ = contacts_scratch_.size();
 
+    // Position correction is applied PER iteration with the captured
+    // penetration as the value. With N iterations × percent, the cumulative
+    // movement per frame is N × pen × percent, which dramatically over-shoots
+    // (e.g. 6 × 0.5 = 3× pen, kicking escaped boids past the container's far
+    // wall). Pre-divide percent by N so the cumulative per-frame correction
+    // approaches `pen × percent` — the standard Baumgarte bound.
+    const float per_iter_pcorr = position_correction
+                               / static_cast<float>(std::max(1, solver_iterations));
+
     for (int it = 0; it < solver_iterations; ++it) {
         for (Contact& c : contacts_scratch_) {
             const auto& ma = bodies_[c.body_a].material;
             const auto& mb = bodies_[c.body_b].material;
             ResolvedInteraction mat = lookup_interaction(ma, mb);
-            resolve_contact(c, bodies_, mat, position_correction, penetration_slop, my_peer_id);
+            resolve_contact(c, bodies_, mat, per_iter_pcorr, penetration_slop, my_peer_id);
         }
     }
 }

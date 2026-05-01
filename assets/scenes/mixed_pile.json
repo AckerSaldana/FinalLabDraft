@@ -1,0 +1,86 @@
+{
+  "name": "mixed_pile",
+  "description": "A floor + tilted ramp + capsule pile + rolling cylinders + cuboid piles. Exercises capsule-capsule, capsule-plane, cylinder-plane, cuboid-cuboid, cuboid-plane.",
+  "gravity_on": true,
+  "materials": [
+    { "name": "wood",   "density":  600.0 },
+    { "name": "steel",  "density": 7850.0 },
+    { "name": "rubber", "density": 1100.0 }
+  ],
+  "interactions": [
+    { "material_a": "wood",   "material_b": "wood",   "restitution": 0.30, "static_friction": 0.5, "dynamic_friction": 0.4 },
+    { "material_a": "steel",  "material_b": "wood",   "restitution": 0.45, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "rubber", "material_b": "wood",   "restitution": 0.80, "static_friction": 0.7, "dynamic_friction": 0.6 },
+    { "material_a": "steel",  "material_b": "steel",  "restitution": 0.55, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "rubber", "material_b": "rubber", "restitution": 0.85, "static_friction": 0.6, "dynamic_friction": 0.5 }
+  ],
+  "cameras": [
+    {
+      "name": "wide",
+      "transform": {
+        "position":    { "x":  0.0, "y":  6.0, "z": 18.0 },
+        "orientation": { "yaw":  0.0, "pitch": -18.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "floor",
+      "transform": { "position": { "x": 0, "y": 0, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 30, "y": 1, "z": 30 } },
+      "material": "wood", "shape_type": "Plane", "shape": { "normal": { "x": 0, "y": 1, "z": 0 } },
+      "behaviour_type": "StaticObject", "behaviour": {}, "collision_type": "SOLID"
+    },
+    {
+      "name": "ramp",
+      "transform": { "position": { "x": -6, "y": 2, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": -25 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "wood", "shape_type": "Plane", "shape": { "normal": { "x": 0, "y": 1, "z": 0 } },
+      "behaviour_type": "StaticObject", "behaviour": {}, "collision_type": "SOLID"
+    },
+    {
+      "name": "cap_a",
+      "transform": { "position": { "x":  3.0, "y": 4.0, "z":  0.0 }, "orientation": { "yaw": 0, "pitch":  0, "roll": 35 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "rubber", "shape_type": "Capsule", "shape": { "radius": 0.4, "height": 1.2 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 30, "z": 0 } }, "owner": "ONE" }
+    },
+    {
+      "name": "cap_b",
+      "transform": { "position": { "x":  3.5, "y": 6.0, "z":  0.4 }, "orientation": { "yaw": 0, "pitch": 10, "roll": -20 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "rubber", "shape_type": "Capsule", "shape": { "radius": 0.4, "height": 1.0 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "TWO" }
+    },
+    {
+      "name": "cyl_a",
+      "transform": { "position": { "x": -4.0, "y": 5.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 90 }, "scale": { "x": 1, "y": 1, "z": 1 } },
+      "material": "steel", "shape_type": "Cylinder", "shape": { "radius": 0.5, "height": 1.5 },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0.5, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "THREE" }
+    },
+    {
+      "name": "stack_left_1",
+      "transform": { "position": { "x":  6.0, "y": 0.6, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1.2, "y": 1.2, "z": 1.2 } },
+      "material": "steel", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "FOUR" }
+    },
+    {
+      "name": "stack_left_2",
+      "transform": { "position": { "x":  6.0, "y": 1.9, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 1.2, "y": 1.2, "z": 1.2 } },
+      "material": "wood",  "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "ONE" }
+    },
+    {
+      "name": "knock_in",
+      "transform": { "position": { "x":  9.0, "y": 1.5, "z": 0 }, "orientation": { "yaw": 0, "pitch": 0, "roll": 0 }, "scale": { "x": 0.8, "y": 0.8, "z": 0.8 } },
+      "material": "rubber", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": -4.0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "TWO" }
+    }
+  ],
+  "spawners": []
+}

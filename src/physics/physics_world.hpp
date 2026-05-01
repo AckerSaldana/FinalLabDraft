@@ -9,6 +9,7 @@
 #include <glm/vec3.hpp>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace finalLab::physics {
@@ -30,6 +31,11 @@ struct RigidBody {
     int                  scene_object_index      = -1;
     uint8_t              owner_peer_id           = 0;
     bool                 is_boid                 = false;
+    // Canonical body ID — identical across peers for the same logical body.
+    // Pre-loaded objects use their scene_object_index; spawned objects use a
+    // peer-prefixed counter assigned by the spawner-owner so two peers cannot
+    // collide. State and edit messages reference this, never the local index.
+    uint32_t             canonical_body_id       = 0;
 
     glm::vec3            net_target_position     {0.0f};
     glm::quat            net_target_orientation  {1.0f, 0.0f, 0.0f, 0.0f};
@@ -51,7 +57,10 @@ public:
 
     int  my_peer_id  = 0;
 
-    void add_body_from_object(const scene::Object& o, int scene_object_index);
+    void add_body_from_object(const scene::Object& o, int scene_object_index, uint32_t canonical_body_id);
+
+    // Returns local index for the given canonical id, or -1 if not present.
+    int  find_local_index(uint32_t canonical_body_id) const;
 
     void request_single_step() { single_step_pending_ = true; }
 
@@ -86,6 +95,7 @@ private:
 
     std::vector<RigidBody>                  bodies_;
     std::vector<RigidBody>                  initial_;
+    std::unordered_map<uint32_t, uint32_t>  canonical_to_local_;
     std::vector<scene::MaterialInteraction> interactions_;
     std::vector<AnimatedRecord>             animated_;
     std::vector<Contact>                    contacts_scratch_;

@@ -64,6 +64,22 @@ scene::OwnerId resolve_owner(const scene::Spawner& def, int& sequential_counter)
     return scene::OwnerId::One;
 }
 
+// Which peer is the *runner* (i.e. responsible for advancing this spawner's
+// state and broadcasting spawned objects). For fixed-owner spawners, that's
+// the named peer; for Sequential spawners, peer 1 by convention so a single
+// peer is always authoritative for the spawn timing.
+int runner_peer_for(const scene::Spawner& def) {
+    using SO = scene::SpawnerOwnerKind;
+    switch (def.base.owner) {
+        case SO::One:        return 1;
+        case SO::Two:        return 2;
+        case SO::Three:      return 3;
+        case SO::Four:       return 4;
+        case SO::Sequential: return 1;
+    }
+    return 1;
+}
+
 scene::Object make_object(const scene::Spawner& def, int seq, std::mt19937& rng) {
     scene::Object obj;
     obj.name = def.base.name + " #" + std::to_string(seq);
@@ -163,6 +179,58 @@ int SpawnerSystem::advance(float current_time, std::vector<scene::Object>& out_o
         }
     }
     return spawned_total;
+}
+
+int SpawnerSystem::advance_owned(float current_time, std::vector<scene::Object>& out_objects,
+                                  std::mt19937& rng, int my_peer_id,
+                                  std::vector<size_t>* spawner_indices_for_each_object) {
+    int spawned_total = 0;
+    for (size_t i = 0; i < defs_.size(); ++i) {
+        const scene::Spawner& def = defs_[i];
+        State& s = states_[i];
+        if (current_time < def.base.start_time) continue;
+
+        // Single-peer mode (my_peer_id == 0) → run every spawner; networked
+        // mode → only the spawner's runner peer advances + broadcasts.
+        if (my_peer_id != 0 && runner_peer_for(def) != my_peer_id) continue;
+
+        if (def.base.timing.kind == scene::SpawnKind::SingleBurst) {
+            if (s.single_burst_done) continue;
+            int n = static_cast<int>(def.base.timing.burst.count);
+            for (int k = 0; k < n; ++k) {
+                scene::Object o = make_object(def, ++s.count, rng);
+                scene::OwnerId owner = resolve_owner(def, s.sequential_next);
+                if (o.behaviour.kind == scene::BehaviourKind::Boid) o.behaviour.boid.owner = owner;
+                else o.behaviour.sim.owner = owner;
+                out_objects.push_back(std::move(o));
+                if (spawner_indices_for_each_object) spawner_indices_for_each_object->push_back(i);
+                ++spawned_total;
+            }
+            s.single_burst_done = true;
+        } else {
+            float interval = def.base.timing.repeating.interval > 0.0f ? def.base.timing.repeating.interval : 1.0f;
+            uint32_t max_count = def.base.timing.repeating.max_count;
+
+            if (s.next_fire_time < 0.0f) s.next_fire_time = def.base.start_time;
+
+            while (current_time >= s.next_fire_time
+                   && (max_count == 0 || static_cast<uint32_t>(s.count) < max_count)) {
+                scene::Object o = make_object(def, ++s.count, rng);
+                scene::OwnerId owner = resolve_owner(def, s.sequential_next);
+                if (o.behaviour.kind == scene::BehaviourKind::Boid) o.behaviour.boid.owner = owner;
+                else o.behaviour.sim.owner = owner;
+                out_objects.push_back(std::move(o));
+                if (spawner_indices_for_each_object) spawner_indices_for_each_object->push_back(i);
+                ++spawned_total;
+                s.next_fire_time += interval;
+            }
+        }
+    }
+    return spawned_total;
+}
+
+void SpawnerSystem::apply_remote_object(scene::Object o, std::vector<scene::Object>& out) {
+    out.push_back(std::move(o));
 }
 
 int SpawnerSystem::spawned_count(size_t i) const {

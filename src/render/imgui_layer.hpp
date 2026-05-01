@@ -10,7 +10,8 @@ class VulkanContext;
 
 class ImGuiLayer {
 public:
-    ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_format);
+    ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_format,
+               VkFormat depth_format = VK_FORMAT_UNDEFINED);
     ~ImGuiLayer();
 
     ImGuiLayer(const ImGuiLayer&) = delete;

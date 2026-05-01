@@ -21,6 +21,8 @@ namespace finalLab::sim {
 
 struct BodySnapshot {
     int        scene_object_index   = -1;
+    uint32_t   canonical_body_id    = 0;       // used by edit broadcasts
+    uint8_t    owner_peer_id        = 0;
     glm::mat4  model                {1.0f};
     glm::vec3  position             {0.0f};
     glm::quat  orientation          {1.0f, 0.0f, 0.0f, 0.0f};
@@ -69,6 +71,25 @@ public:
     void set_net_smoothing(bool enabled, float rate);
     void set_spatial_mode(physics::SpatialMode mode);
 
+    // Inspector-driven mutation. The UI calls this; the sim thread applies the
+    // edit on the next tick and (when broadcast=true) propagates to peers.
+    void edit_body(uint32_t body_id,
+                   glm::vec3 position,
+                   glm::quat orientation,
+                   glm::vec3 linear_velocity,
+                   glm::vec3 angular_velocity_rad,
+                   bool broadcast);
+
+    // GPU-compute path: the renderer runs Reynolds steering on the GPU and
+    // pushes new linear velocities back here keyed on canonical body id. The
+    // sim thread applies these on the next tick (overriding the CPU steering
+    // path for the affected boids). Empty vector clears any pending overrides.
+    struct BoidVelocityOverride {
+        uint32_t  canonical_body_id = 0;
+        glm::vec3 linear_velocity   {0.0f};
+    };
+    void set_boid_velocities(std::vector<BoidVelocityOverride> overrides);
+
     void drain_snapshot(SnapshotData& out);
 
     int  sim_hz_actual()       const { return sim_hz_actual_.load(); }
@@ -88,6 +109,7 @@ private:
     scene::Scene            scene_;
     std::mt19937            rng_{0x5eedface};
     std::atomic<int>        scene_version_{0};
+    uint32_t                my_spawn_seq_{0};   // monotonic per-peer spawn count
 
     net::NetworkRuntime*    net_ = nullptr;
     int                     my_peer_id_ = 0;
@@ -116,6 +138,17 @@ private:
     float                pending_net_correction_rate_   = 8.0f;
     bool                 spatial_dirty_       = false;
     physics::SpatialMode pending_spatial_mode_ = physics::SpatialMode::None;
+
+    struct PendingBodyEdit {
+        uint32_t  body_id = 0;
+        glm::vec3 position{0.0f};
+        glm::quat orientation{1.0f, 0.0f, 0.0f, 0.0f};
+        glm::vec3 linear_velocity{0.0f};
+        glm::vec3 angular_velocity_rad{0.0f};
+        bool      broadcast = false;
+    };
+    std::vector<PendingBodyEdit> pending_body_edits_;
+    std::vector<BoidVelocityOverride> pending_boid_overrides_;
 
     std::mutex           snapshot_mutex_;
     SnapshotData         snapshot_;

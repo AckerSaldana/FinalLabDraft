@@ -49,12 +49,13 @@ Optional: `--peers PATH` to point at a non-default peers file.
 - **ImGui panels** (single window, collapsing headers):
   - **Global** — scene dropdown (broadcasts swap to peers in spec; currently local).
   - **Local** — colour mode (owner / material / shape), camera dropdown, fly-cam settings.
-  - **Threading + Hz** — independent sim Hz (30–2000) and render Hz (15–240).
+  - **Threading + Hz** — independent sim Hz (30–2000), render Hz (15–240), and net Hz (1–2000).
   - **Network** — peer list, Tx/Rx counters, drop counters, smoothing toggle + correction rate slider, in-app QoS shaper (latency / jitter / loss) for the spec's worst-case test (100 ms ± 50 ms / 20 % loss).
   - **Physics** — gravity, pause + step, reset, solver iterations, position correction.
   - **Flocking** — Reynolds weights, neighbour / avoidance radii, max speed / force, Truncated Sum vs Prioritised Dither combine modes, **Spatial mode** (None / Uniform Grid / Octree) with live build / query / memory readouts.
   - **Spawners** — per-spawner status (count, owner, exhausted).
-  - **Inspector** — read-only per-body view (mass, inverse inertia, position, quat, velocities).
+  - **Inspector** — read/write per-body view (mass, position, quat, velocities); "Apply edit" broadcasts the change to all peers via `MsgType::BodyEdit`.
+  - **Global** scene swap broadcasts via `MsgType::SceneSwap`; spawned objects broadcast via `MsgType::Spawn` from the spawner-owner peer only.
 
 ## Demo scenes
 
@@ -62,7 +63,9 @@ Optional: `--peers PATH` to point at a non-default peers file.
 - **tower** — five mixed-material cubes stacked.
 - **spawn** — burst spawner + sequential repeating fountain.
 - **flock** — 28 boids in a steel sphere container with a central cylinder obstacle.
-- **flock_big** — 200 boids; flip Spatial mode to compare O(n²) / Grid / Octree.
+- **flock_big** — 200 boids; flip Spatial mode to compare O(n²) / Grid / Octree, then flip "Run boid steering on GPU" to see the compute pipeline take over.
+- **cube_room** — cuboids tumbling inside a cuboid container; exercises cuboid-cuboid SAT contacts and cuboid-in-cuboid container collisions.
+- **mixed_pile** — capsules + cylinders + cuboids on a floor and a tilted ramp; exercises capsule-capsule, capsule-plane, cylinder-plane, cuboid-cuboid, cuboid-plane.
 
 ## Project layout
 

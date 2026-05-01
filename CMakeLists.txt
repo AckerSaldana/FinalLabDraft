@@ -85,6 +85,7 @@ set(FINALLAB_SOURCES
     src/render/buffer.cpp
     src/render/mesh.cpp
     src/render/instance_renderer.cpp
+    src/render/compute_pipeline.cpp
     src/scene/scene_loader.cpp
     src/scene/animation.cpp
     src/physics/physics_world.cpp

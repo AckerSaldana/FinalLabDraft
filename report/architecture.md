@@ -83,3 +83,19 @@ Inbound state writes a `net_target_position` + `net_target_orientation` and refr
 
 - Scenes live in FlatBuffers (`schema/scene.fbs`). Authored as JSON; `flatc --binary` compiles to `.scene` at build. Schema extended with `BoidObject` and `BoidSpawner` for Phase 7.
 - `SpatialIndex` (Phase 9) wraps a uniform grid and an octree behind one switchable interface. Build + query timings + memory bytes are sampled live and shown in the UI.
+
+## Distributed control channel
+
+Three control messages share a stateless UDP envelope alongside `MsgType::State`:
+
+- `MsgType::SceneSwap` — carries a 56-byte scene name + monotonic version. The local UI's scene combo writes into the `active_scene` index AND broadcasts; any peer that receives a higher-version swap reloads. The version stops the swap from ping-ponging between peers.
+- `MsgType::BodyEdit` — carries a canonical body id + new pose/velocities. The Inspector calls `SimRuntime::edit_body(canonical_id, ..., broadcast=true)`; the sim thread applies the edit on the next tick and (if `broadcast`) pushes the same payload over the wire. Inbound edits arrive on the receivers as `broadcast=false` so there is no echo.
+- `MsgType::Spawn` — sent by the *owner* peer of a spawner whenever it produces a new object. The payload is a fixed-layout `SpawnEntry` (~190 B) with shape, behaviour, owner, transform, velocity ranges, material name. Receivers materialise the `scene::Object` from the payload and call `world_.add_body_from_object(o, scene_idx, canonical_id)`. The sim thread drains inbound spawns *before* `apply_pending` so a fresh body exists in time for the same tick's state messages.
+
+`StateEntry.body_id` and `BodyEditEntry.body_id` are *canonical* (peer-prefixed for spawned bodies, scene-index for pre-loaded ones). The receiver's `PhysicsWorld` keeps a `unordered_map<canonical_id, local_index>` so per-tick lookups are O(1) without coordinating local indices across peers.
+
+## GPU compute pipeline
+
+`render::BoidComputePipeline` owns a Vulkan compute pipeline + descriptor set + host-coherent SSBO + one-shot command buffer, all built off the existing `VulkanContext` graphics queue (graphics queues support `VK_QUEUE_COMPUTE_BIT` per spec). The "GPU steering" toggle in the Flocking panel runs `upload → vkCmdDispatch → vkQueueWaitIdle → readback` once per render frame; the resulting linear velocities are pushed into `SimRuntime::set_boid_velocities()` which the sim thread applies on the next tick (under `control_mutex_`, so there is no contention with the per-tick integration loop). Only the boid's owner peer actually applies the override, so the GPU result is consistent with the rest of the ownership model.
+
+The kernel itself (`shaders/boids.comp`) is brute O(n²) Reynolds steering — the slow path on CPU at 2k boids becomes trivially parallel on the GPU. A spatial-hash version of the same kernel is the natural follow-up.

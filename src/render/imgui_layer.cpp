@@ -3,8 +3,8 @@
 #include "render/vulkan_context.hpp"
 
 #include <imgui.h>
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_vulkan.h>
 
 #include <array>
 #include <stdexcept>
@@ -35,7 +35,8 @@ VkDescriptorPool make_descriptor_pool(VkDevice device) {
 
 } // namespace
 
-ImGuiLayer::ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_format)
+ImGuiLayer::ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_format,
+                       VkFormat depth_format)
     : ctx_(ctx) {
     descriptor_pool_ = make_descriptor_pool(ctx_.device());
 
@@ -51,6 +52,10 @@ ImGuiLayer::ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_fo
     pipeline_rendering.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
     pipeline_rendering.colorAttachmentCount    = 1;
     pipeline_rendering.pColorAttachmentFormats = &color_format;
+    // ImGui pipeline must declare the depth format used by the render pass it
+    // will be invoked inside, even if it doesn't write depth itself; otherwise
+    // VK validation logs format-mismatch warnings every draw call.
+    pipeline_rendering.depthAttachmentFormat   = depth_format;
 
     ImGui_ImplVulkan_InitInfo init{};
     init.Instance        = ctx_.instance();
@@ -61,9 +66,9 @@ ImGuiLayer::ImGuiLayer(VulkanContext& ctx, GLFWwindow* window, VkFormat color_fo
     init.DescriptorPool  = descriptor_pool_;
     init.MinImageCount   = ctx_.swapchain_image_count();
     init.ImageCount      = ctx_.swapchain_image_count();
-    init.MSAASamples     = VK_SAMPLE_COUNT_1_BIT;
-    init.UseDynamicRendering = true;
-    init.PipelineRenderingCreateInfo = pipeline_rendering;
+    init.PipelineInfoMain.MSAASamples                 = VK_SAMPLE_COUNT_1_BIT;
+    init.PipelineInfoMain.PipelineRenderingCreateInfo = pipeline_rendering;
+    init.UseDynamicRendering                          = true;
 
     if (!ImGui_ImplVulkan_Init(&init)) {
         throw std::runtime_error("ImGui_ImplVulkan_Init failed");

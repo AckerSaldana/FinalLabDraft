@@ -1,0 +1,102 @@
+{
+  "name": "cube_room",
+  "description": "Cuboid container with cuboids tumbling inside — exercises cuboid-cuboid SAT contacts and cuboid-in-cuboid container collisions.",
+  "gravity_on": true,
+  "materials": [
+    { "name": "wood",   "density":  600.0 },
+    { "name": "steel",  "density": 7850.0 },
+    { "name": "rubber", "density": 1100.0 }
+  ],
+  "interactions": [
+    { "material_a": "wood",   "material_b": "wood",   "restitution": 0.30, "static_friction": 0.5, "dynamic_friction": 0.4 },
+    { "material_a": "steel",  "material_b": "wood",   "restitution": 0.45, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "rubber", "material_b": "wood",   "restitution": 0.80, "static_friction": 0.7, "dynamic_friction": 0.6 },
+    { "material_a": "steel",  "material_b": "steel",  "restitution": 0.55, "static_friction": 0.4, "dynamic_friction": 0.3 },
+    { "material_a": "rubber", "material_b": "rubber", "restitution": 0.85, "static_friction": 0.6, "dynamic_friction": 0.5 },
+    { "material_a": "rubber", "material_b": "steel",  "restitution": 0.60, "static_friction": 0.5, "dynamic_friction": 0.4 }
+  ],
+  "cameras": [
+    {
+      "name": "iso",
+      "transform": {
+        "position":    { "x":  9.0, "y":  9.0, "z": 12.0 },
+        "orientation": { "yaw":  35.0, "pitch": -28.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 55.0, "near": 0.1, "far": 200.0 }
+    },
+    {
+      "name": "front",
+      "transform": {
+        "position":    { "x":  0.0, "y":  6.0, "z": 14.0 },
+        "orientation": { "yaw":  0.0, "pitch": -18.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 55.0, "near": 0.1, "far": 200.0 }
+    },
+    {
+      "name": "top",
+      "transform": {
+        "position":    { "x":  0.0, "y": 16.0, "z":  0.1 },
+        "orientation": { "yaw":  0.0, "pitch": -85.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "OrthographicCamera",
+      "camera_type": { "size": 14.0, "near": 0.1, "far": 200.0 }
+    }
+  ],
+  "objects": [
+    {
+      "name": "room_container",
+      "transform": {
+        "position":    { "x": 0, "y": 4, "z": 0 },
+        "orientation": { "yaw": 0, "pitch": 0, "roll": 0 },
+        "scale":       { "x": 8, "y": 8, "z": 8 }
+      },
+      "material": "wood",
+      "shape_type": "Cuboid",
+      "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "StaticObject",
+      "behaviour": {},
+      "collision_type": "CONTAINER"
+    },
+    {
+      "name": "stack_a1",
+      "transform": { "position": { "x": -1.0, "y": 1.0, "z":  0.5 }, "orientation": { "yaw": 0,  "pitch": 0,  "roll": 0 }, "scale": { "x": 1.5, "y": 1.5, "z": 1.5 } },
+      "material": "steel",  "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "ONE" }
+    },
+    {
+      "name": "stack_a2",
+      "transform": { "position": { "x": -1.0, "y": 2.6, "z":  0.5 }, "orientation": { "yaw": 0,  "pitch": 0,  "roll": 0 }, "scale": { "x": 1.5, "y": 1.5, "z": 1.5 } },
+      "material": "wood",   "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "TWO" }
+    },
+    {
+      "name": "stack_a3",
+      "transform": { "position": { "x": -1.0, "y": 4.2, "z":  0.5 }, "orientation": { "yaw": 0,  "pitch": 0,  "roll": 0 }, "scale": { "x": 1.5, "y": 1.5, "z": 1.5 } },
+      "material": "rubber", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0, "y": 0, "z": 0 }, "angular_velocity": { "x": 0, "y": 0, "z": 0 } }, "owner": "THREE" }
+    },
+    {
+      "name": "tumbler_b",
+      "transform": { "position": { "x":  1.5, "y": 6.5, "z": -0.5 }, "orientation": { "yaw": 25, "pitch": 18, "roll": 5 }, "scale": { "x": 1.2, "y": 1.2, "z": 1.2 } },
+      "material": "steel",  "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": -1.0, "y": 0.0, "z": 0.0 }, "angular_velocity": { "x": 30, "y": 0, "z": 60 } }, "owner": "FOUR" }
+    },
+    {
+      "name": "tumbler_c",
+      "transform": { "position": { "x":  0.0, "y": 7.5, "z":  2.0 }, "orientation": { "yaw": 12, "pitch": 30, "roll": 8 }, "scale": { "x": 1.0, "y": 1.0, "z": 1.0 } },
+      "material": "rubber", "shape_type": "Cuboid", "shape": { "size": { "x": 1, "y": 1, "z": 1 } },
+      "behaviour_type": "SimulatedObject",
+      "behaviour": { "initial_state": { "linear_velocity": { "x": 0.5, "y": 0.0, "z": -0.8 }, "angular_velocity": { "x": 45, "y": 30, "z": 0 } }, "owner": "ONE" }
+    }
+  ],
+  "spawners": []
+}

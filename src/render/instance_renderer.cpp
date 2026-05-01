@@ -230,6 +230,13 @@ void InstanceRenderer::create_pipeline(VkFormat color_format, VkFormat depth_for
     VkPipelineRasterizationStateCreateInfo rs{};
     rs.sType       = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     rs.polygonMode = VK_POLYGON_MODE_FILL;
+    // Backface culling = BACK. Containers are inverted (CW winding); from
+    // OUTSIDE the camera sees their CW triangles as back-facing → CULLED, so
+    // the container becomes "see-through" from outside (you can look INTO it
+    // and see contents through the far inside wall). From INSIDE the
+    // container, the inverted triangles are CCW relative to the camera →
+    // front-facing → rendered. This matches the spec: "containers should be
+    // rendered appropriately so that the user can see the inside surface".
     rs.cullMode    = VK_CULL_MODE_BACK_BIT;
     rs.frontFace   = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rs.lineWidth   = 1.0f;
