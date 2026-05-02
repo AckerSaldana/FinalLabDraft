@@ -17,6 +17,16 @@
   ],
   "cameras": [
     {
+      "name": "iso",
+      "transform": {
+        "position":    { "x": 12.0, "y": 10.0, "z": 16.0 },
+        "orientation": { "yaw":  30.0, "pitch": -28.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    },
+    {
       "name": "overhead",
       "transform": {
         "position":    { "x":  0.0, "y": 10.0, "z": 16.0 },

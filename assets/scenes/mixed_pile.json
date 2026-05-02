@@ -16,6 +16,16 @@
   ],
   "cameras": [
     {
+      "name": "iso",
+      "transform": {
+        "position":    { "x": 14.0, "y":  9.0, "z": 18.0 },
+        "orientation": { "yaw":  28.0, "pitch": -22.0, "roll": 0.0 },
+        "scale":       { "x":  1.0, "y":  1.0, "z":  1.0 }
+      },
+      "camera_type_type": "PerspectiveCamera",
+      "camera_type": { "fov": 60.0, "near": 0.1, "far": 200.0 }
+    },
+    {
       "name": "wide",
       "transform": {
         "position":    { "x":  0.0, "y":  6.0, "z": 18.0 },

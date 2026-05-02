@@ -187,7 +187,10 @@ MeshData make_plane() {
     m.vertices.push_back({ {  0.5f, 0, -0.5f }, n });
     m.vertices.push_back({ {  0.5f, 0,  0.5f }, n });
     m.vertices.push_back({ { -0.5f, 0,  0.5f }, n });
-    push_quad(m.indices, 0, 1, 2, 3);
+    // CCW-when-viewed-from-above winding. The previous (0,1,2,3) order produced
+    // a geometric front normal of -y while the stored vertex normal was +y, so
+    // backface culling killed the floor from any above-camera view.
+    push_quad(m.indices, 0, 3, 2, 1);
     return m;
 }
 

@@ -230,7 +230,12 @@ int main(int argc, char** argv) try {
     }
 
     sim::SimRuntime sim_runtime;
-    sim_runtime.set_my_peer_id(peer_config.my_peer_id);
+    // Single-peer mode → tell the sim it's the universal owner (id 0) so every
+    // body's contacts apply locally. With my_peer_id=1 in single-peer mode,
+    // resolve_contact silently dropped impulse + position correction for any
+    // body owned by peer 2/3/4 (yellow cube floating, boids escaping the
+    // container). peer_config.my_peer_id stays 1 for the "Peer 1 of 1" UI text.
+    sim_runtime.set_my_peer_id(peer_config.networked() ? peer_config.my_peer_id : 0);
     if (peer_config.networked()) sim_runtime.attach_network(&net_runtime);
     sim_runtime.load_scene(scene);
     sim_runtime.start(sim::cores_to_mask(4, 8));
